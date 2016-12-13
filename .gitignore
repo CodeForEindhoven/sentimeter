@@ -1,0 +1,11 @@
+/classified
+/build
+/node_modules
+/media
+config.json
+*~
+*.sqlite
+*.zip
+*.log
+*.bak
+.crossbar

@@ -1,0 +1,27 @@
+{
+  "name": "sentimeter",
+  "version": "1.0.0",
+  "description": "Collect and share sentiments",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "license": "Apache-2.0",
+  "private": true,
+  "dependencies": {
+    "autobahn": "^0.9.5",
+    "connect": "^3.2.0",
+    "js-yaml": "^3.3.0",
+    "sequelize": "^3.27.0",
+    "sqlite3": "^3.1.8",
+    "swagger-tools": "0.10.1",
+    "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^2.5.1"
+  }
+}

@@ -1,0 +1,280 @@
+---
+swagger: "2.0"
+info:
+  description: "Collect and share sentiments"
+  version: "1.0.0"
+  title: "Sentimeter"
+basePath: "/api"
+schemes:
+- "http"
+produces:
+- "application/json"
+paths:
+  /indicator:
+    post:
+      tags:
+      - "apiv1"
+      summary: "Create Indicator"
+      description: "Create a new Indicator.\n"
+      operationId: "indicator_POST"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Indicator"
+      responses:
+        201:
+          description: "Indicator created"
+          schema:
+            $ref: "#/definitions/Indicator"
+        200:
+          description: "Indicator exists"
+          schema:
+            $ref: "#/definitions/Indicator"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+    put:
+      tags:
+      - "apiv1"
+      summary: "Update Indicator"
+      description: "Update an indicator.\n"
+      operationId: "indicator_PUT"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Indicator"
+      responses:
+        200:
+          description: "An array of indicators"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Indicator"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "apiv1"
+      summary: "Delete Indicator"
+      description: "Delete an indicator.\n"
+      operationId: "indicator_DELETE"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Indicator"
+      responses:
+        200:
+          description: "Deleted"
+          schema:
+            $ref: "#/definitions/Indicator"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+  /indicator/{indicator_id}:
+    get:
+      tags:
+      - "apiv1"
+      summary: "List Indicator Details"
+      description: "Get detailed metrics on a particular indicator.\n"
+      operationId: "indicator_GET"
+      parameters:
+      - name: "indicator_id"
+        in: "path"
+        description: "the id of the indicator to get the details for"
+        required: true
+        type: "string"
+        format: "uid"
+      responses:
+        200:
+          description: "An array of indicators"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Indicator"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+  /indicator/score:
+    post:
+      tags:
+      - "apiv1"
+      summary: "Score on Indicator"
+      description: "Put your score on an indicator"
+      operationId: "score_POST"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Score"
+      responses:
+        200:
+          description: "A unique id for the merge proposal"
+          schema:
+            $ref: "#/definitions/MergeProposal"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+  /indicators:
+    get:
+      tags:
+      - "apiv1"
+      summary: "List Indicators"
+      description: "The sentiment indicators with general metrics that can be used\
+        \ for presentation.\n"
+      operationId: "indicators_GET"
+      parameters: []
+      responses:
+        200:
+          description: "An array of Indicators"
+          schema:
+            $ref: "#/definitions/Indicators"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+  /merges:
+    get:
+      tags:
+      - "apiv1"
+      summary: "List Merges"
+      description: "List the merges with their status"
+      operationId: "merges_GET"
+      parameters: []
+      responses:
+        200:
+          description: "An array of Merges"
+          schema:
+            $ref: "#/definitions/Merges"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+  /merge/vote:
+    post:
+      tags:
+      - "apiv1"
+      summary: "Vote on Merge"
+      description: "Send a merge request to the system that will be propagated to\
+        \ all users.\n"
+      operationId: "vote_POST"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/MergeProposal"
+      responses:
+        200:
+          description: "An array of price estimates by product"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Indicator"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+  /merge:
+    post:
+      tags:
+      - "apiv1"
+      summary: "Merge Indicators"
+      description: "Send a merge request to the system that will be propagated to\
+        \ all users.\n"
+      operationId: "merge_POST"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Indicators"
+      responses:
+        200:
+          description: "A unique id for the merge proposal"
+          schema:
+            $ref: "#/definitions/MergeProposal"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+definitions:
+  Merges:
+    type: "object"
+    properties:
+      merge_id:
+        type: "string"
+        description: "Unique identifier representing the merge"
+      upvotes:
+        type: "number"
+        description: "Number of voters who approve the merge"
+      downvotes:
+        type: "number"
+        description: "Number of voters who disapprove the merge"
+      status:
+        type: "string"
+        description: "status of the Merge"
+  MergeProposal:
+    type: "object"
+    properties:
+      merge_id:
+        type: "string"
+        description: "Unique identifier representing the merge"
+      upvotes:
+        type: "number"
+        description: "Number of voters who approve the merge"
+      downvotes:
+        type: "number"
+        description: "Number of voters who disapprove the merge"
+  Score:
+    type: "object"
+    properties:
+      indicator_id:
+        type: "string"
+        description: "Unique identifier representing the indicator"
+      score:
+        type: "number"
+        description: "how user scores his sentiment on this indicator"
+  Indicator:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique identifier representing a indicator"
+      title:
+        type: "string"
+        description: "Display name of indicator."
+  Indicators:
+    type: "array"
+    items:
+      $ref: "#/definitions/Indicator"
+  Error:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      fields:
+        type: "string"
