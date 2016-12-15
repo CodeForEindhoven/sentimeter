@@ -4,16 +4,25 @@
   "description": "Collect and share sentiments",
   "main": "index.js",
   "scripts": {
-    "prestart": "npm install",
     "start": "node index.js"
   },
   "keywords": [
     "swagger"
   ],
-  "license": "Apache-2.0",
+  "license": "GPL-3.0+",
+  "author": {
+    "name": "Milo van der Linden",
+    "email": "milo.vd.linden@eindhoven.nl",
+    "url": "http://www.eindhoven.nl"
+  },
+  "contributors": [
+    {
+      "name": "Marcel Goethals",
+      "email": "m.goethals@eindhoven.nl"
+    }
+  ],
   "private": true,
   "dependencies": {
-    "autobahn": "^0.9.5",
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
     "sequelize": "^3.27.0",

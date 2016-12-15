@@ -10,6 +10,33 @@ schemes:
 produces:
 - "application/json"
 paths:
+  /handshake:
+    post:
+      tags:
+      - "apiv1"
+      summary: "Get or acknowledge Identity"
+      description: "Get or acknowlegde an Identity, will return an Identity and a session.\n"
+      operationId: "handshake_POST"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Identity"
+      responses:
+        201:
+          description: "Identity created"
+          schema:
+            $ref: "#/definitions/Identity"
+        200:
+          description: "Identity exists"
+          schema:
+            $ref: "#/definitions/Identity"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
   /indicator:
     post:
       tags:
@@ -108,7 +135,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
-  /indicator/score:
+  /score:
     post:
       tags:
       - "apiv1"
@@ -219,6 +246,15 @@ paths:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
 definitions:
+  Identity:
+    type: "object"
+    properties:
+      Identity_id:
+        type: "string"
+        description: "Unique identifier representing the identity"
+      Session_id:
+        type: "string"
+        description: "Unique identifier representing the session"
   Merges:
     type: "object"
     properties:

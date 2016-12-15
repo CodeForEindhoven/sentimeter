@@ -22,4 +22,9 @@
     var obj2 = JSON.parse(JSON.stringify(data));
     return trim_nulls(obj2);
   };
+
+  exports.getUuid = function(){
+    var uuidV4 = require('uuid/v4');
+    return uuidV4();
+  };
 }());
