@@ -16,6 +16,7 @@ var util = require('../helpers/utils.js');
       "identity_id": req.swagger.params.body.value.identity_id || util.getUuid(),
       "session_id": util.getUuid()
     };
+
     // Invalidate all sessions for this identity and return a new session.
     models.session.destroy({
       where: {
@@ -26,7 +27,7 @@ var util = require('../helpers/utils.js');
         response
       ).then(function(session, created){
         res.setHeader('Content-Type', 'application/json');
-        var output = {"session_id": session.session_id};
+        var output = {"identity_id": session.identity_id, "session_id": session.session_id};
         res.end(JSON.stringify(output, null, 2));
       });
     });
@@ -134,20 +135,90 @@ var util = require('../helpers/utils.js');
     //session needs to be valid. If it is, vote with the given identity
     // Parameters: Session (Used to retrieve Identity), Indicator_id to vote on and score.
 
-    //Is the session valid?
-
-    if (Object.keys(examples).length > 0) {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
-    } else {
-      res.end();
+    var err_fields = [];
+    if(!req.swagger.params.body.value.indicator_id){
+      err_fields.push("indicator_id");
     }
+    if(!req.swagger.params.body.value.session_id){
+      err_fields.push("indicator_id");
+    }
+    if(!req.swagger.params.body.value.score){
+      err_fields.push("score");
+    }
+    if (parseInt(req.swagger.params.body.value.score) < 0 || parseInt(req.swagger.params.body.value.score) > 10){
+      err_fields.push("score");
+    }
+
+    if(err_fields.length > 0){
+      return util.catchError(req, res, {
+        "code": 400,
+        "name": "fieldErrors",
+        "message": "Some fields are missing or wrong",
+        "fields": err_fields
+      });
+    }
+
+    //Is the score between 0 and 10?
+
+    //Is the session valid?
+    models.session.findOne({
+      where: {
+        session_id: req.swagger.params.body.value.session_id
+      }
+    }).then(function(session){
+
+      // Try to write Identity_id, Indicator_Id and score.
+      if(!session) {
+        res.setHeader('Content-Type', 'application/json');
+        return util.catchError(req, res, {
+          "code": 400,
+          "name": "noSession",
+          "message": "You do not have a valid session",
+          "fields": ["session_id"]
+        });
+      } else {
+        var tScore = {
+          identity_id: session.identity_id,
+          indicator_id: req.swagger.params.body.value.indicator_id,
+          score: parseInt(req.swagger.params.body.value.score)
+        };
+        var where = {
+          identity_id: tScore.identity_id,
+          indicator_id: tScore.indicator_id
+        };
+        models.score.findOne({where: where}).then(function (foundItem) {
+          if (!foundItem) {
+            // Item not found, create a new one
+            models.score.create(tScore)
+              .then(function (result) {
+                console.log(result);
+                res.end();
+              })
+              .error(function (err) {
+                util.catchError(req,res,err);
+              });
+          } else {
+            // Found an item, update it
+            models.score.update(tScore, {where: where})
+              .then(function (result) {
+                console.log(result);
+                res.end();
+              })
+              .catch(function (err) {
+                util.catchError(req,res,err);
+              });
+          }
+        }).catch(function (err) {
+          return util.catchError(req,res,err);
+        });
+      }
+    });
   };
 
   /**
    * POST a vote on a mergeRequest
    *
-   * @api {post} /api/indicator/score
+   * @api {post} /api/merge/vote
    * @param body
    * @example {
    *            "merge_id": "merge_id_1",

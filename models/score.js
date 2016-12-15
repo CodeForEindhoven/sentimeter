@@ -10,6 +10,12 @@
           max: 10
         }
       }
+    }, {
+      classMethods: {
+        associate: function(models) {
+          score.belongsTo(models.indicator,{foreignKey: 'indicator_id'});
+        }
+      }
     });
     return score;
   };

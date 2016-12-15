@@ -27,4 +27,13 @@
     var uuidV4 = require('uuid/v4');
     return uuidV4();
   };
+
+  exports.catchError = function(req, res, e) {
+    result = {
+        "code": e.code || 400,
+        "message": e.name + " -- " + e.message,
+        "fields": e.fields || null
+      };
+    res.end(JSON.stringify(trim_nulls(result)));
+  };
 }());

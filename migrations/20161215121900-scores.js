@@ -9,9 +9,9 @@
           primaryKey: true,
           type: Sequelize.INTEGER.UNSIGNED
         },
-        indicator_id: Sequelize.STRING,
-        identity_id: Sequelize.STRING,
-        score: Sequelize.INTEGER,
+        indicator_id: {type: Sequelize.STRING, allowNull: false},
+        identity_id: {type: Sequelize.STRING, allowNull: false},
+        score: {type: Sequelize.INTEGER, allowNull: false},
         createdAt: Sequelize.DATE,
         updatedAt: Sequelize.DATE,
         deletedAt: Sequelize.DATE

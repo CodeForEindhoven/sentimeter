@@ -10,6 +10,11 @@
       },
       title: DataTypes.STRING
     },{
+      classMethods: {
+        associate: function(models) {
+          indicator.hasMany(models.score,{foreignKey: 'indicator_id'});
+        }
+      },
       paranoid: true
     });
     return indicator;

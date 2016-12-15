@@ -152,7 +152,7 @@ paths:
         200:
           description: "A unique id for the merge proposal"
           schema:
-            $ref: "#/definitions/MergeProposal"
+            $ref: "#/definitions/Score"
         default:
           description: "Unexpected error"
           schema:
@@ -288,6 +288,9 @@ definitions:
       indicator_id:
         type: "string"
         description: "Unique identifier representing the indicator"
+      session_id:
+          type: "string"
+          description: "Unique identifier representing the session"
       score:
         type: "number"
         description: "how user scores his sentiment on this indicator"
