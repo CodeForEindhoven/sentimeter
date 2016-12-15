@@ -11,6 +11,7 @@ var util = require('../helpers/utils.js');
    * @example {} or {"identity_id": "identity_id_1"}
    **/
   module.exports.handshake_POST = function(req, res, next) {
+    res = util.corsMethod(res, true, 'POST');
     console.log(req.swagger.params.body.value.identity_id);
     var response = {
       "identity_id": req.swagger.params.body.value.identity_id || util.getUuid(),
@@ -26,7 +27,6 @@ var util = require('../helpers/utils.js');
       models.session.create(
         response
       ).then(function(session, created){
-        res.setHeader('Content-Type', 'application/json');
         var output = {"identity_id": session.identity_id, "session_id": session.session_id};
         res.end(JSON.stringify(output, null, 2));
       });
@@ -40,6 +40,7 @@ var util = require('../helpers/utils.js');
    * @param indicator_id (String)
    **/
   module.exports.indicator_GET = function(req, res, next) {
+    res = util.corsMethod(res, true, 'GET');
     var whereClause = {
       where: {
         is_default: true
@@ -47,6 +48,9 @@ var util = require('../helpers/utils.js');
     };
     if (req.swagger.params.indicator_id) {
       whereClause = {
+        include: [{
+          model: models.score
+        }],
         where: {
           id: req.swagger.params.indicator_id.value
         }
@@ -54,7 +58,6 @@ var util = require('../helpers/utils.js');
     }
     models.indicator.findOne(whereClause).then(function(indicator) {
       if (indicator) {
-        res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(util.removeNulls(indicator) || {}, null, 2));
       } else {
         res.end(JSON.stringify({}, null, 2));
@@ -70,12 +73,12 @@ var util = require('../helpers/utils.js');
    * @example { "title": "The Title of the Indicator"}
    **/
   module.exports.indicator_POST = function(req, res, next) {
+    res = util.corsMethod(res, true, 'POST');
     var response = {};
     if (req.swagger.params.body.value.title) {
       models.indicator.findOrCreate(
         {where: {title: req.swagger.params.body.value.title}}
       ).spread(function(indicator, created) {
-        res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(util.removeNulls(indicator), null, 2));
       });
     } else {
@@ -83,7 +86,7 @@ var util = require('../helpers/utils.js');
         "status": "fail",
         "message": "No title provided"
       };
-      res.setHeader('Content-Type', 'application/json');
+
       res.end(JSON.stringify(response, null, 2));
     }
   };
@@ -96,11 +99,11 @@ var util = require('../helpers/utils.js');
    * @example { "title": "The Title of the Indicator"}
    **/
   module.exports.indicator_PUT = function(req, res, next) {
+    res = util.corsMethod(res, true, 'PUT');
     var response = {
       "indicator_id": util.getUuid(),
       "status": "ok"
     };
-    res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(response, null, 2));
   };
 
@@ -110,9 +113,10 @@ var util = require('../helpers/utils.js');
    * @api {get} /api/indicators
    **/
   module.exports.indicators_GET = function(req, res, next) {
+    res = util.corsMethod(res, true, 'GET');
     models.indicator.findAll().then(function(indicators) {
       if (Object.keys(indicators).length > 0) {
-        res.setHeader('Content-Type', 'application/json');
+
         res.end(JSON.stringify(util.removeNulls(indicators) || [], null, 2));
       } else {
         res.end(JSON.stringify([], null, 2));
@@ -132,6 +136,7 @@ var util = require('../helpers/utils.js');
    *          }
    **/
   module.exports.score_POST = function(req, res, next) {
+    res = util.corsMethod(res, true, 'POST');
     //session needs to be valid. If it is, vote with the given identity
     // Parameters: Session (Used to retrieve Identity), Indicator_id to vote on and score.
 
@@ -169,7 +174,6 @@ var util = require('../helpers/utils.js');
 
       // Try to write Identity_id, Indicator_Id and score.
       if(!session) {
-        res.setHeader('Content-Type', 'application/json');
         return util.catchError(req, res, {
           "code": 400,
           "name": "noSession",
@@ -191,7 +195,7 @@ var util = require('../helpers/utils.js');
             // Item not found, create a new one
             models.score.create(tScore)
               .then(function (result) {
-                console.log(result);
+                //console.log(result);
                 res.end();
               })
               .error(function (err) {
@@ -201,7 +205,7 @@ var util = require('../helpers/utils.js');
             // Found an item, update it
             models.score.update(tScore, {where: where})
               .then(function (result) {
-                console.log(result);
+                //console.log(result);
                 res.end();
               })
               .catch(function (err) {
@@ -227,6 +231,7 @@ var util = require('../helpers/utils.js');
    *          }
    **/
   module.exports.vote_POST = function(req, res, next) {
+    res = util.corsMethod(res, true, 'POST');
     var examples = {};
     examples['application/json'] = [{
       "description": "aeiou",
@@ -234,7 +239,6 @@ var util = require('../helpers/utils.js');
       "title": "aeiou"
     }];
     if (Object.keys(examples).length > 0) {
-      res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
     } else {
       res.end();
@@ -247,6 +251,7 @@ var util = require('../helpers/utils.js');
    * @api {get} /api/merges
    **/
   module.exports.merges_GET = function(req, res, next) {
+    res = util.corsMethod(res, true, 'GET');
     var examples = {};
     examples['application/json'] = [{
       "description": "aeiou",
@@ -254,7 +259,6 @@ var util = require('../helpers/utils.js');
       "title": "aeiou"
     }];
     if (Object.keys(examples).length > 0) {
-      res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
     } else {
       res.end();
@@ -269,6 +273,7 @@ var util = require('../helpers/utils.js');
    * @example ["indicator_id_1", "indicator_id_2", ..,  "indicator_id_n"]
    **/
   module.exports.merge_POST = function(req, res, next) {
+    res = util.corsMethod(res, true, 'POST');
     var examples = {};
     examples['application/json'] = [{
       "description": "aeiou",
@@ -276,7 +281,6 @@ var util = require('../helpers/utils.js');
       "title": "aeiou"
     }];
     if (Object.keys(examples).length > 0) {
-      res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
     } else {
       res.end();
