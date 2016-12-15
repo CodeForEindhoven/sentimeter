@@ -11,7 +11,6 @@ var util = require('../helpers/utils.js');
    * @example {} or {"identity_id": "identity_id_1"}
    **/
   module.exports.handshake_POST = function(req, res, next) {
-    res = util.corsMethod(res, true, 'POST');
     console.log(req.swagger.params.body.value.identity_id);
     var response = {
       "identity_id": req.swagger.params.body.value.identity_id || util.getUuid(),
@@ -40,7 +39,6 @@ var util = require('../helpers/utils.js');
    * @param indicator_id (String)
    **/
   module.exports.indicator_GET = function(req, res, next) {
-    res = util.corsMethod(res, true, 'GET');
     var whereClause = {
       where: {
         is_default: true
@@ -73,7 +71,6 @@ var util = require('../helpers/utils.js');
    * @example { "title": "The Title of the Indicator"}
    **/
   module.exports.indicator_POST = function(req, res, next) {
-    res = util.corsMethod(res, true, 'POST');
     var response = {};
     if (req.swagger.params.body.value.title) {
       models.indicator.findOrCreate(
@@ -99,7 +96,6 @@ var util = require('../helpers/utils.js');
    * @example { "title": "The Title of the Indicator"}
    **/
   module.exports.indicator_PUT = function(req, res, next) {
-    res = util.corsMethod(res, true, 'PUT');
     var response = {
       "indicator_id": util.getUuid(),
       "status": "ok"
@@ -113,7 +109,6 @@ var util = require('../helpers/utils.js');
    * @api {get} /api/indicators
    **/
   module.exports.indicators_GET = function(req, res, next) {
-    res = util.corsMethod(res, true, 'GET');
     models.indicator.findAll().then(function(indicators) {
       if (Object.keys(indicators).length > 0) {
 
@@ -136,7 +131,6 @@ var util = require('../helpers/utils.js');
    *          }
    **/
   module.exports.score_POST = function(req, res, next) {
-    res = util.corsMethod(res, true, 'POST');
     //session needs to be valid. If it is, vote with the given identity
     // Parameters: Session (Used to retrieve Identity), Indicator_id to vote on and score.
 
@@ -231,7 +225,6 @@ var util = require('../helpers/utils.js');
    *          }
    **/
   module.exports.vote_POST = function(req, res, next) {
-    res = util.corsMethod(res, true, 'POST');
     var examples = {};
     examples['application/json'] = [{
       "description": "aeiou",
@@ -251,7 +244,6 @@ var util = require('../helpers/utils.js');
    * @api {get} /api/merges
    **/
   module.exports.merges_GET = function(req, res, next) {
-    res = util.corsMethod(res, true, 'GET');
     var examples = {};
     examples['application/json'] = [{
       "description": "aeiou",
@@ -273,7 +265,6 @@ var util = require('../helpers/utils.js');
    * @example ["indicator_id_1", "indicator_id_2", ..,  "indicator_id_n"]
    **/
   module.exports.merge_POST = function(req, res, next) {
-    res = util.corsMethod(res, true, 'POST');
     var examples = {};
     examples['application/json'] = [{
       "description": "aeiou",

@@ -6,6 +6,7 @@
   var swaggerTools = require('swagger-tools');
   var jsyaml = require('js-yaml');
   var fs = require('fs');
+  var cors = require('cors');
   var serverPort = 8080;
 
   // swaggerRouter configuration
@@ -14,6 +15,8 @@
     controllers: './controllers',
     useStubs: process.env.NODE_ENV === 'development' ? true : false // Conditionally turn on stubs (mock mode)
   };
+  
+  app.use(cors());
 
   // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
   var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');

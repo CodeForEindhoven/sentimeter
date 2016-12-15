@@ -28,17 +28,6 @@
     return uuidV4();
   };
 
-  exports.corsMethod = function(res, cors, method){
-    cors = cors || true;
-    res.setHeader('Content-Type', 'application/json');
-    if(cors){
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    }
-    res.setHeader('Access-Control-Allow-Methods', method || 'GET');
-    return res;
-  };
-  
   exports.catchError = function(req, res, e) {
     result = {
         "code": e.code || 400,
