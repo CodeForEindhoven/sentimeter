@@ -117,7 +117,20 @@ var util = require('../helpers/utils.js');
    * @api {get} /api/indicators
    **/
   module.exports.indicators_GET = function(req, res, next) {
-    models.indicator.findAll().then(function(indicators) {
+    models.indicator.findAll({
+      attributes: [
+        'id', 'title', 'createdAt', 'updatedAt',
+        [models.sequelize.fn('MIN', models.sequelize.col('scores.score')), 'minimum'],
+        [models.sequelize.fn('MAX', models.sequelize.col('scores.score')), 'maximum'],
+        [models.sequelize.fn('AVG', models.sequelize.col('scores.score')), 'average'],
+        [models.sequelize.fn('COUNT', models.sequelize.col('scores.score')), 'count']
+      ],
+      include: [{
+        model: models.score,
+        attributes: []
+      }],
+      group: ['indicator.id']
+    }).then(function(indicators) {
       if (Object.keys(indicators).length > 0) {
 
         res.end(JSON.stringify(util.removeNulls(indicators) || [], null, 2));
