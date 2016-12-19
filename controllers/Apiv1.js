@@ -22,11 +22,14 @@ var util = require('../helpers/utils.js');
       where: {
         identity_id: response.identity_id
       }
-    }).then(function(){
+    }).then(function() {
       models.session.create(
         response
-      ).then(function(session, created){
-        var output = {"identity_id": session.identity_id, "session_id": session.session_id};
+      ).then(function(session, created) {
+        var output = {
+          "identity_id": session.identity_id,
+          "session_id": session.session_id
+        };
         res.end(JSON.stringify(output, null, 2));
       });
     });
@@ -39,15 +42,18 @@ var util = require('../helpers/utils.js');
    * @param indicator_id (String)
    **/
   module.exports.indicator_GET = function(req, res, next) {
-    var whereClause = {
-      where: {
-        is_default: true
-      }
-    };
+    var whereClause;
+
     if (req.swagger.params.indicator_id) {
       whereClause = {
         include: [{
-          model: models.score
+          model: models.score,
+          attributes: [
+            [models.sequelize.fn('MIN', models.sequelize.col('score')), 'minimum'],
+            [models.sequelize.fn('MAX', models.sequelize.col('score')), 'maximum'],
+            [models.sequelize.fn('AVG', models.sequelize.col('score')), 'average'],
+            [models.sequelize.fn('COUNT', models.sequelize.col('score')), 'scores']
+          ]
         }],
         where: {
           id: req.swagger.params.indicator_id.value
@@ -73,9 +79,11 @@ var util = require('../helpers/utils.js');
   module.exports.indicator_POST = function(req, res, next) {
     var response = {};
     if (req.swagger.params.body.value.title) {
-      models.indicator.findOrCreate(
-        {where: {title: req.swagger.params.body.value.title}}
-      ).spread(function(indicator, created) {
+      models.indicator.findOrCreate({
+        where: {
+          title: req.swagger.params.body.value.title
+        }
+      }).spread(function(indicator, created) {
         res.end(JSON.stringify(util.removeNulls(indicator), null, 2));
       });
     } else {
@@ -135,20 +143,20 @@ var util = require('../helpers/utils.js');
     // Parameters: Session (Used to retrieve Identity), Indicator_id to vote on and score.
 
     var err_fields = [];
-    if(!req.swagger.params.body.value.indicator_id){
+    if (!req.swagger.params.body.value.indicator_id) {
       err_fields.push("indicator_id");
     }
-    if(!req.swagger.params.body.value.session_id){
+    if (!req.swagger.params.body.value.session_id) {
       err_fields.push("indicator_id");
     }
-    if(!req.swagger.params.body.value.score){
+    if (!req.swagger.params.body.value.score) {
       err_fields.push("score");
     }
-    if (parseInt(req.swagger.params.body.value.score) < 0 || parseInt(req.swagger.params.body.value.score) > 10){
+    if (parseInt(req.swagger.params.body.value.score) < 0 || parseInt(req.swagger.params.body.value.score) > 10) {
       err_fields.push("score");
     }
 
-    if(err_fields.length > 0){
+    if (err_fields.length > 0) {
       return util.catchError(req, res, {
         "code": 400,
         "name": "fieldErrors",
@@ -164,10 +172,10 @@ var util = require('../helpers/utils.js');
       where: {
         session_id: req.swagger.params.body.value.session_id
       }
-    }).then(function(session){
+    }).then(function(session) {
 
       // Try to write Identity_id, Indicator_Id and score.
-      if(!session) {
+      if (!session) {
         return util.catchError(req, res, {
           "code": 400,
           "name": "noSession",
@@ -184,30 +192,49 @@ var util = require('../helpers/utils.js');
           identity_id: tScore.identity_id,
           indicator_id: tScore.indicator_id
         };
-        models.score.findOne({where: where}).then(function (foundItem) {
+        var resultQuery = {
+          where: {
+            "indicator_id": tScore.indicator_id
+          },
+          attributes: [
+            [models.sequelize.fn('MIN', models.sequelize.col('score')), 'minimum'],
+            [models.sequelize.fn('MAX', models.sequelize.col('score')), 'maximum'],
+            [models.sequelize.fn('AVG', models.sequelize.col('score')), 'average'],
+            [models.sequelize.fn('COUNT', models.sequelize.col('score')), 'scores']
+          ]
+        };
+        models.score.findOne({
+          where: where
+        }).then(function(foundItem) {
           if (!foundItem) {
             // Item not found, create a new one
             models.score.create(tScore)
-              .then(function (result) {
-                //console.log(result);
-                res.end();
+              .then(function(result) {
+                models.score.findAll(resultQuery).then(function(result) {
+                  //return score created, indicator, number of scores on this indicator, average, max, min
+                  res.end(JSON.stringify(result || {}, null, 2));
+                });
               })
-              .error(function (err) {
-                util.catchError(req,res,err);
+              .error(function(err) {
+                util.catchError(req, res, err);
               });
           } else {
             // Found an item, update it
-            models.score.update(tScore, {where: where})
-              .then(function (result) {
-                //console.log(result);
-                res.end();
+            models.score.update(tScore, {
+                where: where
               })
-              .catch(function (err) {
-                util.catchError(req,res,err);
+              .then(function(result) {
+                models.score.findAll(resultQuery).then(function(result) {
+                  //return score created, indicator, number of scores on this indicator, average, max, min
+                  res.end(JSON.stringify(result || {}, null, 2));
+                });
+              })
+              .catch(function(err) {
+                util.catchError(req, res, err);
               });
           }
-        }).catch(function (err) {
-          return util.catchError(req,res,err);
+        }).catch(function(err) {
+          return util.catchError(req, res, err);
         });
       }
     });
