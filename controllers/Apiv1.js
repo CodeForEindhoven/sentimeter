@@ -25,7 +25,7 @@ var util = require('../helpers/utils.js');
     }).then(function() {
       models.session.create(
         response
-      ).then(function(session, created) {
+      ).then(function(session) {
         var output = {
           "identity_id": session.identity_id,
           "session_id": session.session_id
@@ -52,7 +52,7 @@ var util = require('../helpers/utils.js');
             [models.sequelize.fn('MIN', models.sequelize.col('score')), 'minimum'],
             [models.sequelize.fn('MAX', models.sequelize.col('score')), 'maximum'],
             [models.sequelize.fn('AVG', models.sequelize.col('score')), 'average'],
-            [models.sequelize.fn('COUNT', models.sequelize.col('score')), 'scores']
+            [models.sequelize.fn('COUNT', models.sequelize.col('score')), 'count']
           ]
         }],
         where: {
@@ -84,6 +84,18 @@ var util = require('../helpers/utils.js');
           title: req.swagger.params.body.value.title
         }
       }).spread(function(indicator, created) {
+        var hist = {
+          model: 'indicator',
+          string_value: indicator.dataValues.title,
+          operation: 'UPDATE',
+          parent_id: indicator.dataValues.id,
+          stamp: indicator.dataValues.updatedAt
+        };
+        if(created) {
+          hist.operation = 'CREATE';
+          hist.stamp = indicator.dataValues.createdAt;
+        }
+        models.history.create(hist);
         res.end(JSON.stringify(util.removeNulls(indicator), null, 2));
       });
     } else {
@@ -213,7 +225,7 @@ var util = require('../helpers/utils.js');
             [models.sequelize.fn('MIN', models.sequelize.col('score')), 'minimum'],
             [models.sequelize.fn('MAX', models.sequelize.col('score')), 'maximum'],
             [models.sequelize.fn('AVG', models.sequelize.col('score')), 'average'],
-            [models.sequelize.fn('COUNT', models.sequelize.col('score')), 'scores']
+            [models.sequelize.fn('COUNT', models.sequelize.col('score')), 'count']
           ]
         };
         models.score.findOne({
@@ -223,8 +235,15 @@ var util = require('../helpers/utils.js');
             // Item not found, create a new one
             models.score.create(tScore)
               .then(function(result) {
+                models.history.create({
+                  model: 'score',
+                  integer_value: result.dataValues.score,
+                  operation: 'CREATE',
+                  parent_id: result.dataValues.indicator_id,
+                  identity_id: result.dataValues.identity_id,
+                  stamp: result.dataValues.createdAt
+                });
                 models.score.findAll(resultQuery).then(function(result) {
-                  //return score created, indicator, number of scores on this indicator, average, max, min
                   res.end(JSON.stringify(result || {}, null, 2));
                 });
               })
@@ -237,6 +256,16 @@ var util = require('../helpers/utils.js');
                 where: where
               })
               .then(function(result) {
+                console.log(tScore);
+                // TODO Write Update to History
+                models.history.create({
+                  model: 'score',
+                  integer_value: tScore.score,
+                  operation: 'UPDATE',
+                  parent_id: tScore.indicator_id,
+                  identity_id: tScore.identity_id,
+                  stamp: new Date()
+                });
                 models.score.findAll(resultQuery).then(function(result) {
                   //return score created, indicator, number of scores on this indicator, average, max, min
                   res.end(JSON.stringify(result || {}, null, 2));

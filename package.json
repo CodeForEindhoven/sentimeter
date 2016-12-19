@@ -27,6 +27,7 @@
     "cors": "^2.8.1",
     "js-yaml": "^3.3.0",
     "sequelize": "^3.27.0",
+    "sequelize-i18n": "^1.1.0",
     "sqlite3": "^3.1.8",
     "swagger-tools": "0.10.1",
     "uuid": "^3.0.1"

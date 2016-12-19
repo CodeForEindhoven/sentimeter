@@ -8,7 +8,10 @@
         defaultValue: DataTypes.UUIDV4,
         allowNull: false
       },
-      title: DataTypes.STRING
+      title: {
+        type: DataTypes.STRING //,
+        //i18n: true
+      }
     },{
       classMethods: {
         associate: function(models) {

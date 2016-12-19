@@ -4,6 +4,7 @@
   var fs = require('fs');
   var path = require('path');
   var Sequelize = require('sequelize');
+  var SequelizeI18N = require('sequelize-i18n');
   var basename = path.basename(module.filename);
   var env = process.env.NODE_ENV || 'development';
   var config = require(__dirname + '/../config/config.json')[env];
@@ -14,7 +15,8 @@
   } else {
     sequelize = new Sequelize(config.database, config.username, config.password, config);
   }
-
+  var i18n = new SequelizeI18N( sequelize, { languages: config.languages.list, default_language: config.languages.default } );
+  i18n.init();
   fs
     .readdirSync(__dirname)
     .filter(function(file) {
