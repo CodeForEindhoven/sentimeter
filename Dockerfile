@@ -1,7 +1,7 @@
 FROM node:6
 
 # Create sentimeter directory
-RUN mkdir -p /sentimeter
+RUN mkdir -p /sentimeter/data
 WORKDIR /sentimeter
 
 # Variables
