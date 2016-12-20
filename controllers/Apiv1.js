@@ -91,7 +91,7 @@ var util = require('../helpers/utils.js');
           parent_id: indicator.dataValues.id,
           stamp: indicator.dataValues.updatedAt
         };
-        if(created) {
+        if (created) {
           hist.operation = 'CREATE';
           hist.stamp = indicator.dataValues.createdAt;
         }
@@ -131,8 +131,7 @@ var util = require('../helpers/utils.js');
   module.exports.indicators_GET = function(req, res, next) {
     models.indicator.findAll({
       attributes: [
-        'id', 'title', 'createdAt', 'updatedAt',
-        [models.sequelize.fn('MIN', models.sequelize.col('scores.score')), 'minimum'],
+        'id', 'title', 'createdAt', 'updatedAt', [models.sequelize.fn('MIN', models.sequelize.col('scores.score')), 'minimum'],
         [models.sequelize.fn('MAX', models.sequelize.col('scores.score')), 'maximum'],
         [models.sequelize.fn('AVG', models.sequelize.col('scores.score')), 'average'],
         [models.sequelize.fn('COUNT', models.sequelize.col('scores.score')), 'count']
@@ -152,6 +151,47 @@ var util = require('../helpers/utils.js');
     });
   };
 
+  /**
+   * GET Array of Indicator
+   *
+   * @api {get} /api/indicators
+   **/
+  module.exports.history_GET = function(req, res, next) {
+    models.history.findAll({
+      where: {
+        identity_id: req.swagger.params.identity_id.value
+      }
+    }).then(function(results) {
+      if (Object.keys(results).length > 0) {
+        var history = {
+          identity_id: null,
+          scores: [],
+          indicators: []
+        };
+        //console.log(results);
+        for (var i in results) {
+          if (results[i].dataValues.model === "score") {
+            history.scores.push({
+              indicator_id: results[i].dataValues.parent_id,
+              score: results[i].dataValues.integer_value,
+              operation: results[i].dataValues.operation,
+              timestamp: results[i].dataValues.stamp
+            });
+          } else if (results[i].dataValues.model === 'indicator') {
+            history.indicators.push({
+              id: results[i].dataValues.parent_id,
+              title: results[i].dataValues.string_value,
+              operation: results[i].dataValues.operation,
+              timestamp: results[i].dataValues.stamp
+            });
+          }
+        }
+        res.end(JSON.stringify(util.removeNulls(history) || [], null, 2));
+      } else {
+        res.end(JSON.stringify([], null, 2));
+      }
+    });
+  };
   /**
    * POST a Score to an Indicator
    *

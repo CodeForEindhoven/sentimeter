@@ -1,26 +1,14 @@
 {
   "development": {
     "dialect": "sqlite",
-    "storage": "development.sqlite",
-    "languages": {
-      "list" : ["EN" , "NL"] ,
-      "default" : "EN"
-    }
+    "storage": "data/development.sqlite"
   },
   "test": {
     "dialect": "sqlite",
-    "storage": "test.sqlite",
-    "languages": {
-      "list" : ["EN" , "NL"] ,
-      "default" : "EN"
-    }
+    "storage": "data/test.sqlite"
   },
   "production": {
     "dialect": "sqlite",
-    "storage": "production.sqlite",
-    "languages": {
-      "list" : ["EN" , "NL"] ,
-      "default" : "EN"
-    }
+    "storage": "data/production.sqlite"
   }
 }

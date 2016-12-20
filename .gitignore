@@ -1,7 +1,5 @@
-/classified
-/build
 /node_modules
-/media
+/data
 *~
 *.sqlite
 *.zip

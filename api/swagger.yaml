@@ -135,6 +135,30 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
+  /history/{identity_id}:
+    get:
+      tags:
+      - "apiv1"
+      summary: "List Identity details"
+      description: "Get history for a given identity.\n"
+      operationId: "history_GET"
+      parameters:
+      - name: "identity_id"
+        in: "path"
+        description: "the id of the identity to get history for"
+        required: true
+        type: "string"
+        format: "uid"
+      responses:
+        200:
+          description: "An array of Scores and Indicators with their history information"
+          schema:
+            $ref: "#/definitions/History"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
   /score:
     post:
       tags:
@@ -294,6 +318,52 @@ definitions:
       score:
         type: "number"
         description: "how user scores his sentiment on this indicator"
+  History:
+    type: "object"
+    properties:
+      identity_id:
+        type: "string"
+        description: "Unique identifier representing a indicator"
+      indicators:
+        type: "array"
+        items:
+          $ref: "#/definitions/IndicatorH"
+      scores:
+        type: "array"
+        items:
+          $ref: "#/definitions/ScoreH"
+  IndicatorH:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique identifier representing a indicator"
+      title:
+        type: "string"
+        description: "Display name of indicator."
+      operation:
+        type: "string"
+        description: "Display name of indicator."
+      timestamp:
+        type: "string"
+        format: "dateTime"
+        description: "Display name of indicator."
+  ScoreH:
+    type: "object"
+    properties:
+      indicator_id:
+        type: "string"
+        description: "Unique identifier representing the indicator"
+      score:
+        type: "number"
+        description: "how user scores his sentiment on this indicator"
+      operation:
+        type: "string"
+        description: "Display name of indicator."
+      timestamp:
+        type: "string"
+        format: "dateTime"
+        description: "Display name of indicator."
   Indicator:
     type: "object"
     properties:
