@@ -192,6 +192,34 @@ var util = require('../helpers/utils.js');
       }
     });
   };
+
+  module.exports.history_indicator_GET = function(req, res, next){
+    models.history.findAll({
+      where: {
+        identity_id: req.swagger.params.identity_id.value,
+        model: 'score',
+        parent_id: req.swagger.params.indicator_id.value
+      }
+    }).then(function(results) {
+      if (Object.keys(results).length > 0) {
+        var history = {
+          identity_id: req.swagger.params.identity_id.value,
+          indicator_id: req.swagger.params.indicator_id.value,
+          scores: []
+        };
+        for (var i in results) {
+          history.scores.push({
+            score: results[i].dataValues.integer_value,
+            operation: results[i].dataValues.operation,
+            timestamp: results[i].dataValues.stamp
+          });
+        }
+        res.end(JSON.stringify(util.removeNulls(history) || [], null, 2));
+      } else {
+        res.end(JSON.stringify([], null, 2));
+      }
+    });
+  };
   /**
    * POST a Score to an Indicator
    *

@@ -135,6 +135,36 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
+  /history/{indicator_id}/{identity_id}:
+    get:
+      tags:
+      - "apiv1"
+      summary: "List history for a given indicator identity"
+      description: "Get history for a given indicator and identity.\n"
+      operationId: "history_indicator_GET"
+      parameters:
+      - name: "indicator_id"
+        in: "path"
+        description: "the id of the indicator to get history for"
+        required: true
+        type: "string"
+        format: "uid"
+      - name: "identity_id"
+        in: "path"
+        description: "the id of the identity to get history for"
+        required: true
+        type: "string"
+        format: "uid"
+      responses:
+        200:
+          description: "An array of Scores with history information"
+          schema:
+            $ref: "#/definitions/History"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
   /history/{identity_id}:
     get:
       tags:
