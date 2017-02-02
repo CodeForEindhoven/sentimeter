@@ -37,6 +37,33 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
+  /feedback:
+    post:
+      tags:
+      - "apiv1"
+      summary: "Post feedback"
+      description: "Add feedback.\n"
+      operationId: "feedback_POST"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Feedback"
+      responses:
+        201:
+          description: "Feedback created"
+          schema:
+            $ref: "#/definitions/Feedback"
+        200:
+          description: "Feedback exists"
+          schema:
+            $ref: "#/definitions/Feedback"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
   /indicator:
     post:
       tags:
@@ -300,6 +327,21 @@ paths:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
 definitions:
+  Feedback:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique identifier representing the feedback"
+      title:
+        type: "string"
+        description: "Display name of feedback."
+      description:
+        type: "string"
+        description: "Description of feedback."
+      session_id:
+        type: "string"
+        description: "Session of the feedback"
   Identity:
     type: "object"
     properties:

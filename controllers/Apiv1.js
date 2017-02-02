@@ -193,7 +193,7 @@ var util = require('../helpers/utils.js');
     });
   };
 
-  module.exports.history_indicator_GET = function(req, res, next){
+  module.exports.history_indicator_GET = function(req, res, next) {
     models.history.findAll({
       where: {
         identity_id: req.swagger.params.identity_id.value,
@@ -412,6 +412,40 @@ var util = require('../helpers/utils.js');
       res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
     } else {
       res.end();
+    }
+  };
+  /**
+   * POST a new Indicator
+   *
+   * @api {post} /api/indicator
+   * @param body
+   * @example { "title": "The Title of the Indicator"}
+   **/
+  module.exports.feedback_POST = function(req, res, next) {
+    var response = {};
+    if (req.swagger.params.body.value.title) {
+      models.feedback.findOrCreate({
+        where: {
+          id: req.swagger.params.body.value.id,
+          title: req.swagger.params.body.value.title,
+          description: req.swagger.params.body.value.description,
+          session_id: req.swagger.params.body.value.session_id
+        }
+      }).spread(function(hit, created) {
+        var mFeedback = {
+          title: hit.dataValues.title,
+          description: hit.dataValues.description,
+          id: hit.dataValues.id,
+          session_id: hit.dataValues.session_id
+        };
+        res.end(JSON.stringify(util.removeNulls(mFeedback), null, 2));
+      });
+    } else {
+      response = {
+        "status": "fail",
+        "message": "No title provided"
+      };
+      res.end(JSON.stringify(response, null, 2));
     }
   };
 }());
