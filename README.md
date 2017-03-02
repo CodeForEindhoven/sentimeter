@@ -1,3 +1,25 @@
+# Build status
+
+[![Travis](https://travis-ci.org/CodeForEindhoven/sentimeter.svg?branch=master)](https://travis-ci.org/CodeForEindhoven/sentimeter)
+[![David](https://david-dm.org/codeforeindhoven/sentimeter.svg)](https://david-dm.org/codeforeindhoven/sentimeter)
+
+# About
+
+Uses:
+
+Node.js, Connect, Swagger, Sequelize, Sqlite.
+
+## Requirements
+
+* [NodeJS & NPM](http://nodejs.org/download)
+* Git
+
+### Windows specifics
+* [Python (version 2.7)] (https://www.python.org/download/releases/2.7.6/) Windows: add PYTHON system variable pointing to the full path to python.exe.
+* Microsoft Visual Studio C++
+* You can also install [Visual Studio Community] (https://www.visualstudio.com/products/visual-studio-community-vs) containing all requirements.
+* Restart Windows after altering system variables.
+
 # Sentimeter Swagger API
 
 Currently focused at targeting the [Waag-App](https://github.com/CodeForEindhoven/waag-app-frontend) an anonymous tool to
