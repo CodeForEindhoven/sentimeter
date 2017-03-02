@@ -11,7 +11,6 @@ var util = require('../helpers/utils.js');
    * @example {} or {"identity_id": "identity_id_1"}
    **/
   module.exports.handshake_POST = function(req, res, next) {
-    console.log(req.swagger.params.body.value.identity_id);
     var response = {
       "identity_id": req.swagger.params.body.value.identity_id || util.getUuid(),
       "session_id": util.getUuid()
