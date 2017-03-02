@@ -2,6 +2,7 @@
 
 [![Travis](https://travis-ci.org/CodeForEindhoven/sentimeter.svg?branch=master)](https://travis-ci.org/CodeForEindhoven/sentimeter)
 [![David](https://david-dm.org/codeforeindhoven/sentimeter.svg)](https://david-dm.org/codeforeindhoven/sentimeter)
+[![devDependencies Status](https://david-dm.org/codeforeindhoven/sentimeter/dev-status.svg)](https://david-dm.org/codeforeindhoven/sentimeter?type=dev)
 
 # About
 
