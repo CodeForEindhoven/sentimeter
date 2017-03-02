@@ -51,7 +51,7 @@ describe('testing sentimeter api', function() {
    * Test the /GET indicators route
    */
   describe('/GET indicators', function() {
-    it('it should return indicators', function(done) {
+    it('it should return empty array of indicators', function(done) {
       chai.request(app)
         .get('/api/indicators')
         .end(function(err, res) {
@@ -105,4 +105,20 @@ describe('testing sentimeter api', function() {
       });
     });
 
+    /*
+     * Test the /GET indicators route
+     */
+    describe('/GET indicators', function() {
+      it('it should return a single indicator', function(done) {
+        chai.request(app)
+          .get('/api/indicators')
+          .end(function(err, res) {
+            var data = JSON.parse(res.text);
+            data.should.be.instanceof(Array);
+            data.should.have.lengthOf(1);
+            res.should.have.status(200);
+            done();
+          });
+      });
+    });
 });
