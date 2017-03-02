@@ -1,13 +1,4 @@
 dist: trusty
-sudo: required
 language: node_js
-env:
-- CXX=g++-4.8
-node_js:
-  - 6
-
-before_install:
-    - $CXX --version
-    - case ${TRAVIS_NODE_VERSION} in 0.8*|0.10*) npm install -g npm@2 ;; esac
 before_script:
   - mkdir data
