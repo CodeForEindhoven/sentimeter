@@ -22,6 +22,7 @@ describe('testing sentimeter api', function() {
       chai.request(app)
         .get('/docs')
         .end(function(err, res) {
+          res.should.be.html; // jshint ignore:line
           res.should.have.status(200);
           done();
         });
@@ -41,6 +42,7 @@ describe('testing sentimeter api', function() {
           should.exist(data.identity_id);
           should.exist(data.session_id);
           session_id = data.session_id;
+          res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();
         });
@@ -58,6 +60,7 @@ describe('testing sentimeter api', function() {
           var data = JSON.parse(res.text);
           data.should.be.instanceof(Array);
           data.should.have.lengthOf(0);
+          res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();
         });
@@ -78,6 +81,7 @@ describe('testing sentimeter api', function() {
            var data = JSON.parse(res.text);
            should.exist(data.id);
            indicator_id = data.id;
+           res.should.be.json; // jshint ignore:line
            res.should.have.status(200);
            done();
          });
@@ -99,6 +103,7 @@ describe('testing sentimeter api', function() {
           .end(function(err, res) {
             var data = JSON.parse(res.text);
             should.equal(data[0].count, 1);
+            res.should.be.json; // jshint ignore:line
             res.should.have.status(200);
             done();
           });
@@ -116,6 +121,7 @@ describe('testing sentimeter api', function() {
             var data = JSON.parse(res.text);
             data.should.be.instanceof(Array);
             data.should.have.lengthOf(1);
+            res.should.be.json; // jshint ignore:line
             res.should.have.status(200);
             done();
           });
