@@ -13,13 +13,12 @@
   "license": "GPL-3.0+",
   "author": {
     "name": "Milo van der Linden",
-    "email": "milo.vd.linden@eindhoven.nl",
-    "url": "http://www.eindhoven.nl"
+    "email": "milo@edogodigi.net"
   },
   "contributors": [
     {
       "name": "Marcel Goethals",
-      "email": "m.goethals@eindhoven.nl"
+      "email": "marcel.goethals@gmail.com"
     }
   ],
   "private": true,

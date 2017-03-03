@@ -1,8 +1,8 @@
 # Build status
 
-[![Travis](https://travis-ci.org/CodeForEindhoven/sentimeter.svg?branch=master)](https://travis-ci.org/CodeForEindhoven/sentimeter)
-[![David](https://david-dm.org/codeforeindhoven/sentimeter.svg)](https://david-dm.org/codeforeindhoven/sentimeter)
-[![devDependencies Status](https://david-dm.org/codeforeindhoven/sentimeter/dev-status.svg)](https://david-dm.org/codeforeindhoven/sentimeter?type=dev)
+[![Travis](https://travis-ci.org/codefornl/sentimeter.svg?branch=master)](https://travis-ci.org/codefornl/sentimeter)
+[![David](https://david-dm.org/codefornl/sentimeter.svg)](https://david-dm.org/codefornl/sentimeter)
+[![devDependencies Status](https://david-dm.org/codefornl/sentimeter/dev-status.svg)](https://david-dm.org/codefornl/sentimeter?type=dev)
 
 # About
 
@@ -23,7 +23,7 @@ Node.js, Connect, Swagger, Sequelize, Sqlite.
 
 # Sentimeter Swagger API
 
-Currently focused at targeting the [Waag-App](https://github.com/CodeForEindhoven/waag-app-frontend) an anonymous tool to
+Currently focused at targeting the [Waag-App](https://github.com/codeforeindhoven/waag-app-frontend) an anonymous tool to
 register sentiment with City Employees without using identities.
 
 ## Overview
