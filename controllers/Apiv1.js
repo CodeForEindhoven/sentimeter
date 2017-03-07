@@ -16,21 +16,66 @@ var util = require('../helpers/utils.js');
       "identity_id": req.swagger.params.body.value.identity_id || util.getUuid(),
       "session_id": util.getUuid()
     };
-
     // Invalidate all sessions for this identity and return a new session.
     models.session.destroy({
       where: {
         identity_id: response.identity_id
       }
     }).then(function() {
-      models.session.create(
-        response
-      ).then(function(session) {
+      models.session.create(response).then(function(session) {
         var output = {
           "identity_id": session.identity_id,
           "session_id": session.session_id
         };
-        res.end(JSON.stringify(output, null, 2));
+        // Group member?
+        models.member.findOne(
+          {
+            where: {
+              identity_id: session.identity_id
+            }
+          }).then(function(membership) {
+              if (membership) {
+                output.group_id = membership.parent_id;
+                res.end(JSON.stringify(output, null, 2));
+              } else {
+                //select or create a group
+                models.member.findAll({
+                  attributes: [
+                    'parent_id',
+                    [models.sequelize.fn('count', models.sequelize.col('identity_id')), 'cnt']
+                  ],
+                  having: models.sequelize.where(
+                    models.sequelize.fn('count'),
+                    "<=",
+                    3
+                  ),
+
+                  order: [[models.sequelize.fn('count', models.sequelize.col('identity_id')), 'DESC']],
+                  group: [
+                    "parent_id"
+                  ]
+                }).then(function(result){
+                  if (!result || result.length === 0){
+                    //create a new group
+                    models.member.create({
+                      identity_id: session.identity_id
+                    }).then(function(result2){
+                      output.group_id = result2.parent_id;
+                      res.end(JSON.stringify(output, null, 2));
+                    });
+                  } else {
+                    var groupIdx = Math.floor(Math.random() * (result.length));
+                    models.member.create({
+                      identity_id: session.identity_id,
+                      parent_id: result[groupIdx].parent_id
+                    }).then(function(result2){
+                      output.group_id = result2.parent_id;
+                      res.end(JSON.stringify(output, null, 2));
+                    });
+                  }
+                });
+              }
+          });
       });
     });
   };
@@ -105,7 +150,6 @@ var util = require('../helpers/utils.js');
         "status": "fail",
         "message": "No title provided"
       };
-
       res.end(JSON.stringify(response, null, 2));
     }
   };
@@ -173,7 +217,6 @@ var util = require('../helpers/utils.js');
           scores: [],
           indicators: []
         };
-        //console.log(results);
         for (var i in results) {
           if (results[i].dataValues.model === "score") {
             history.scores.push({
@@ -331,8 +374,7 @@ var util = require('../helpers/utils.js');
                 where: where
               })
               .then(function(result) {
-                console.log(tScore);
-                // TODO Write Update to History
+                // Write Update to History
                 models.history.create({
                   model: 'score',
                   integer_value: tScore.score,

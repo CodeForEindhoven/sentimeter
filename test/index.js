@@ -9,8 +9,10 @@ chai.use(chaiHttp);
 var should = chai.should();
 
 describe('testing sentimeter api', function() {
+  var identity_id;
   var session_id;
   var indicator_id;
+  var group_id;
   afterEach(function() {
     // runs after each test in this block
   });
@@ -32,16 +34,19 @@ describe('testing sentimeter api', function() {
   /*
    * Test the /Post handshake
    */
-  describe('/POST handshake', function() {
-    it('it should return identity and session', function(done) {
+  describe('/POST handshake, first user', function() {
+    it('it should return identity, group and session', function(done) {
       chai.request(app)
         .post('/api/handshake')
         .send({})
         .end(function(err, res) {
           var data = JSON.parse(res.text);
+          //console.log(res.text);
           should.exist(data.identity_id);
           should.exist(data.session_id);
-          session_id = data.session_id;
+          should.exist(data.group_id);
+          identity_id = data.identity_id;
+          group_id = data.group_id;
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();
@@ -49,6 +54,117 @@ describe('testing sentimeter api', function() {
     });
   });
 
+  /*
+   * Test the /Post handshake
+   */
+  describe('/POST handshake, new session, same group', function() {
+    it('it should return identity, group and NEW session', function(done) {
+      chai.request(app)
+        .post('/api/handshake')
+        .send({"identity_id": identity_id})
+        .end(function(err, res) {
+          var data = JSON.parse(res.text);
+          //console.log(res.text);
+          should.exist(data.identity_id);
+          session_id = data.session_id;
+          should.exist(data.session_id);
+          should.exist(data.group_id);
+          should.equal(data.group_id, group_id);
+          res.should.be.json; // jshint ignore:line
+          res.should.have.status(200);
+          done();
+        });
+    });
+  });
+
+  /*
+   * Test the /Post handshake
+   */
+  describe('/POST handshake, second user; new identity and session, same group', function() {
+    it('it should return NEW identity, SAME group and NEW session', function(done) {
+      chai.request(app)
+        .post('/api/handshake')
+        .send({})
+        .end(function(err, res) {
+          var data = JSON.parse(res.text);
+          //console.log(res.text);
+          should.exist(data.identity_id);
+          session_id = data.session_id;
+          should.exist(data.session_id);
+          should.exist(data.group_id);
+          should.equal(data.group_id, group_id);
+          res.should.be.json; // jshint ignore:line
+          res.should.have.status(200);
+          done();
+        });
+    });
+  });
+
+  /*
+   * Test the /Post handshake
+   */
+  describe('/POST handshake, third user; new identity and session, same group', function() {
+    it('it should return NEW identity, SAME group and NEW session', function(done) {
+      chai.request(app)
+        .post('/api/handshake')
+        .send({})
+        .end(function(err, res) {
+          var data = JSON.parse(res.text);
+          //console.log(res.text);
+          should.exist(data.identity_id);
+          should.exist(data.session_id);
+          should.exist(data.group_id);
+          should.equal(data.group_id, group_id);
+          res.should.be.json; // jshint ignore:line
+          res.should.have.status(200);
+          done();
+        });
+    });
+  });
+
+  /*
+   * Test the /Post handshake
+   */
+  describe('/POST handshake, fourth user; new identity and session, same group', function() {
+    it('it should return NEW identity, SAME group and NEW session', function(done) {
+      chai.request(app)
+        .post('/api/handshake')
+        .send({})
+        .end(function(err, res) {
+          var data = JSON.parse(res.text);
+          //console.log(res.text);
+          should.exist(data.identity_id);
+          should.exist(data.session_id);
+          should.exist(data.group_id);
+          should.equal(data.group_id, group_id);
+          res.should.be.json; // jshint ignore:line
+          res.should.have.status(200);
+          done();
+        });
+    });
+  });
+
+  /*
+   * Test the /Post handshake
+   */
+  describe('/POST handshake, fifth user; new identity and session, new group', function() {
+    it('it should return NEW identity,NEW group and NEW session', function(done) {
+      chai.request(app)
+        .post('/api/handshake')
+        .send({})
+        .end(function(err, res) {
+          var data = JSON.parse(res.text);
+          //console.log(res.text);
+          should.exist(data.identity_id);
+          should.exist(data.session_id);
+          should.exist(data.group_id);
+          should.not.equal(data.group_id, group_id);
+          res.should.be.json; // jshint ignore:line
+          res.should.have.status(200);
+          done();
+        });
+    });
+  });
   /*
    * Test the /GET indicators route
    */
