@@ -38,6 +38,24 @@ paths:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
   /feedback:
+    get:
+      tags:
+      - "apiv1"
+      summary: "Get feedback"
+      description: "Get list of feedback.\n"
+      operationId: "feedback_GET"
+      responses:
+        200:
+          description: "Feedback received"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Feedback"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
     post:
       tags:
       - "apiv1"

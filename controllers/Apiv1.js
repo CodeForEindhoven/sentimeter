@@ -501,4 +501,22 @@ var util = require('../helpers/utils.js');
       res.end(JSON.stringify(response, null, 2));
     }
   };
+
+  /**
+   * GET Array of Feedback
+   *
+   * @api {get} /api/feedback
+   **/
+  module.exports.feedback_GET = function(req, res, next) {
+    res.setHeader('content-type', 'application/json');
+    models.feedback.findAll({
+      attributes: [ 'title', 'description' ]
+    }).then(function(feedback) {
+      if (Object.keys(feedback).length > 0) {
+        res.end(JSON.stringify(util.removeNulls(feedback) || [], null, 2));
+      } else {
+        res.end(JSON.stringify([], null, 2));
+      }
+    });
+  };
 }());

@@ -191,7 +191,7 @@ describe('testing sentimeter api', function() {
        chai.request(app)
          .post('/api/indicator')
          .send({
-           "title": "Waarin ik mij gelukkig voel"
+           "title": "This is an indicator title"
          })
          .end(function(err, res) {
            var data = JSON.parse(res.text);
@@ -227,6 +227,47 @@ describe('testing sentimeter api', function() {
     });
 
     /*
+     * Test the creation of feedback
+     */
+     describe('/POST feedback, title only', function() {
+       it('it should return ok', function(done) {
+         chai.request(app)
+           .post('/api/feedback')
+           .send({
+             "session_id": session_id,
+             "title": "This is a test feedback title"
+           })
+           .end(function(err, res) {
+             var data = JSON.parse(res.text);
+             res.should.be.json; // jshint ignore:line
+             res.should.have.status(200);
+             done();
+           });
+       });
+     });
+
+     /*
+      * Test the creation of feedback
+      */
+      describe('/POST feedback, title and description', function() {
+        it('it should return ok', function(done) {
+          chai.request(app)
+            .post('/api/feedback')
+            .send({
+              "session_id": session_id,
+              "title": "This is another test feedback title",
+              "description": "This is another test feedback description"
+            })
+            .end(function(err, res) {
+              var data = JSON.parse(res.text);
+              res.should.be.json; // jshint ignore:line
+              res.should.have.status(200);
+              done();
+            });
+        });
+      });
+
+    /*
      * Test the /GET indicators route
      */
     describe('/GET indicators', function() {
@@ -237,6 +278,23 @@ describe('testing sentimeter api', function() {
             var data = JSON.parse(res.text);
             data.should.be.instanceof(Array);
             data.should.have.lengthOf(1);
+            res.should.be.json; // jshint ignore:line
+            res.should.have.status(200);
+            done();
+          });
+      });
+    });
+    /*
+     * Test the /GET feedback route
+     */
+    describe('/GET feedback', function() {
+      it('it should return a list of feedback', function(done) {
+        chai.request(app)
+          .get('/api/feedback')
+          .end(function(err, res) {
+            var data = JSON.parse(res.text);
+            data.should.be.instanceof(Array);
+            data.should.have.lengthOf(2);
             res.should.be.json; // jshint ignore:line
             res.should.have.status(200);
             done();
