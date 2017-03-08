@@ -51,6 +51,7 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Feedback"
+              uniqueItems: true
         404:
           description: "Not Found"
           schema:
@@ -128,6 +129,7 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Indicator"
+              uniqueItems: true
         default:
           description: "Unexpected error"
           schema:
@@ -175,6 +177,7 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Indicator"
+              uniqueItems: true
         default:
           description: "Unexpected error"
           schema:
@@ -229,6 +232,29 @@ paths:
           description: "An array of Scores and Indicators with their history information"
           schema:
             $ref: "#/definitions/History"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+  /event:
+    post:
+      tags:
+      - "apiv1"
+      summary: "Post a event to a group"
+      description: "Post a event request to a group"
+      operationId: "event_POST"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Event"
+      responses:
+        200:
+          description: "A unique id for the event"
+          schema:
+            $ref: "#/definitions/Event"
         default:
           description: "Unexpected error"
           schema:
@@ -315,6 +341,7 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Indicator"
+              uniqueItems: true
         default:
           description: "Unexpected error"
           schema:
@@ -344,7 +371,40 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
+
 definitions:
+  Event:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique id of the event"
+      group_id:
+        type: "string"
+        description: "Unique id of the group"
+      location:
+        type: "string"
+        description: "Location of the event"
+      summary:
+        type: "string"
+        description: "Summary of the event"
+      description:
+        type: "string"
+        description: "Description of the event"
+      start:
+        type: "string"
+        format: date-time
+        description: "Start date time with timezone of the event"
+      end:
+        type: "string"
+        format: date-time
+        description: "End date time with timezone of the event"
+      attendees:
+        type: "array"
+        items:
+          $ref: "#/definitions/Identity"
+          uniqueItems: true
+
   Feedback:
     type: "object"
     properties:
@@ -436,7 +496,7 @@ definitions:
         description: "Display name of indicator."
       timestamp:
         type: "string"
-        format: "dateTime"
+        format: "date-time"
         description: "Display name of indicator."
   ScoreH:
     type: "object"
@@ -452,7 +512,7 @@ definitions:
         description: "Display name of indicator."
       timestamp:
         type: "string"
-        format: "dateTime"
+        format: "date-time"
         description: "Display name of indicator."
   Indicator:
     type: "object"
@@ -467,6 +527,7 @@ definitions:
     type: "array"
     items:
       $ref: "#/definitions/Indicator"
+      uniqueItems: true
   Error:
     type: "object"
     properties:

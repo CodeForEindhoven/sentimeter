@@ -207,6 +207,22 @@ describe('testing sentimeter api', function() {
    /*
     * Test the creation of an indicator
     */
+    describe('/POST score without fields', function() {
+      it('it should return a error', function(done) {
+        chai.request(app)
+          .post('/api/score')
+          .send({})
+          .end(function(err, res) {
+            var data = JSON.parse(res.text);
+            res.should.be.json; // jshint ignore:line
+            res.should.have.status(400);
+            done();
+          });
+      });
+    });
+   /*
+    * Test the creation of an indicator
+    */
     describe('/POST score', function() {
       it('it should return a single score', function(done) {
         chai.request(app)
@@ -225,7 +241,24 @@ describe('testing sentimeter api', function() {
           });
       });
     });
-
+    /*
+     * Test the creation of feedback
+     */
+     describe('/POST feedback, no fields', function() {
+       it('it should return a error', function(done) {
+         chai.request(app)
+           .post('/api/feedback')
+           .send({
+             "session_id": session_id
+           })
+           .end(function(err, res) {
+             var data = JSON.parse(res.text);
+             res.should.be.json; // jshint ignore:line
+             res.should.have.status(400);
+             done();
+           });
+       });
+     });
     /*
      * Test the creation of feedback
      */

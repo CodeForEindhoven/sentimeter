@@ -34,6 +34,7 @@
         "message": e.name + " -- " + e.message,
         "fields": e.fields || null
       };
+    res.statusCode = e.code || 400;
     res.end(JSON.stringify(trim_nulls(result)));
   };
 }());

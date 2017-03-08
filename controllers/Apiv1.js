@@ -146,11 +146,12 @@ var util = require('../helpers/utils.js');
         res.end(JSON.stringify(util.removeNulls(indicator), null, 2));
       });
     } else {
-      response = {
-        "status": "fail",
-        "message": "No title provided"
-      };
-      res.end(JSON.stringify(response, null, 2));
+      return util.catchError(req, res, {
+        "code": 400,
+        "name": "fieldErrors",
+        "message": "No title provided",
+        "fields": ["title"]
+      });
     }
   };
 
@@ -414,9 +415,8 @@ var util = require('../helpers/utils.js');
     res.setHeader('content-type', 'application/json');
     var examples = {};
     examples['application/json'] = [{
-      "description": "aeiou",
-      "id": "aeiou",
-      "title": "aeiou"
+      "description": "vote description",
+      "title": " vote title"
     }];
     if (Object.keys(examples).length > 0) {
       res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
@@ -434,9 +434,8 @@ var util = require('../helpers/utils.js');
     res.setHeader('content-type', 'application/json');
     var examples = {};
     examples['application/json'] = [{
-      "description": "aeiou",
-      "id": "aeiou",
-      "title": "aeiou"
+      "description": "merge description",
+      "title": "merge title"
     }];
     if (Object.keys(examples).length > 0) {
       res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
@@ -456,9 +455,8 @@ var util = require('../helpers/utils.js');
     res.setHeader('content-type', 'application/json');
     var examples = {};
     examples['application/json'] = [{
-      "description": "aeiou",
-      "id": "aeiou",
-      "title": "aeiou"
+      "description": "merge post description",
+      "title": "merge post title"
     }];
     if (Object.keys(examples).length > 0) {
       res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
@@ -494,11 +492,12 @@ var util = require('../helpers/utils.js');
         res.end(JSON.stringify(util.removeNulls(mFeedback), null, 2));
       });
     } else {
-      response = {
-        "status": "fail",
-        "message": "No title provided"
-      };
-      res.end(JSON.stringify(response, null, 2));
+      return util.catchError(req, res, {
+        "code": 400,
+        "name": "fieldErrors",
+        "message": "No title provided",
+        "fields": ["title"]
+      });
     }
   };
 
@@ -518,5 +517,33 @@ var util = require('../helpers/utils.js');
         res.end(JSON.stringify([], null, 2));
       }
     });
+  };
+  /**
+   * POST a new Indicator
+   *
+   * @api {post} /api/event
+   * @param body
+   **/
+  module.exports.event_POST = function(req, res, next) {
+    res.setHeader('content-type', 'application/json');
+    var response = {};
+    if (req.swagger.params.body.value.group_id) {
+      //Find other members in the group
+      models.members.find({
+        where: {
+          group_id: req.swagger.params.body.value.group_id
+        }
+      }).then(function(group) {
+        //check if this user is in the group and if the group counts more then 1 identity
+        res.end(JSON.stringify(util.removeNulls(mFeedback), null, 2));
+      });
+    } else {
+      return util.catchError(req, res, {
+        "code": 400,
+        "name": "fieldErrors",
+        "message": "No group provided",
+        "fields": ["group_id"]
+      });
+    }
   };
 }());
