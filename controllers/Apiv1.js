@@ -35,7 +35,9 @@ var moment = require('moment-timezone');
           }
         }).then(function(membership) {
           var whereclause = {1: 1};
+          var member = false;
           if (membership) {
+            member = true;
             whereclause = {"parent_id": membership.parent_id};
           }
           //select or create a group
@@ -46,7 +48,7 @@ var moment = require('moment-timezone');
             having: models.sequelize.where(
               models.sequelize.fn('count'),
               "<=",
-              4
+              3
             ),
 
             order: [
@@ -66,16 +68,24 @@ var moment = require('moment-timezone');
               });
             } else {
               var groupIdx = Math.floor(Math.random() * (result.length));
-              models.member.create({
-                identity_id: session.identity_id,
-                parent_id: result[groupIdx].parent_id
-              }).then(function(result2) {
+              if(!member){
+                models.member.create({
+                  identity_id: session.identity_id,
+                  parent_id: result[groupIdx].parent_id
+                }).then(function(result2) {
+                  output.group = {
+                    "id":result2.parent_id,
+                    "members": result[groupIdx].dataValues.cnt
+                  };
+                  res.end(JSON.stringify(output, null, 2));
+                });
+              } else {
                 output.group = {
-                  "id":result2.parent_id,
+                  "id":result[groupIdx].parent_id,
                   "members": result[groupIdx].dataValues.cnt
                 };
                 res.end(JSON.stringify(output, null, 2));
-              });
+              }
             }
           });
         });
