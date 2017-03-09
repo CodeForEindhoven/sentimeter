@@ -42,12 +42,11 @@ describe('testing sentimeter api', function() {
         .send({})
         .end(function(err, res) {
           var data = JSON.parse(res.text);
-          //console.log(res.text);
           should.exist(data.identity_id);
           should.exist(data.session_id);
-          should.exist(data.group_id);
+          should.exist(data.group);
           identity_id = data.identity_id;
-          group_id = data.group_id;
+          group_id = data.group.id;
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();
@@ -65,12 +64,11 @@ describe('testing sentimeter api', function() {
         .send({"identity_id": identity_id})
         .end(function(err, res) {
           var data = JSON.parse(res.text);
-          //console.log(res.text);
           should.exist(data.identity_id);
           session_id = data.session_id;
           should.exist(data.session_id);
-          should.exist(data.group_id);
-          should.equal(data.group_id, group_id);
+          should.exist(data.group);
+          should.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();
@@ -88,12 +86,11 @@ describe('testing sentimeter api', function() {
         .send({})
         .end(function(err, res) {
           var data = JSON.parse(res.text);
-          //console.log(res.text);
           should.exist(data.identity_id);
           session_id = data.session_id;
           should.exist(data.session_id);
-          should.exist(data.group_id);
-          should.equal(data.group_id, group_id);
+          should.exist(data.group);
+          should.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();
@@ -114,8 +111,8 @@ describe('testing sentimeter api', function() {
           //console.log(res.text);
           should.exist(data.identity_id);
           should.exist(data.session_id);
-          should.exist(data.group_id);
-          should.equal(data.group_id, group_id);
+          should.exist(data.group);
+          should.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();
@@ -136,8 +133,8 @@ describe('testing sentimeter api', function() {
           //console.log(res.text);
           should.exist(data.identity_id);
           should.exist(data.session_id);
-          should.exist(data.group_id);
-          should.equal(data.group_id, group_id);
+          should.exist(data.group);
+          should.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();
@@ -158,8 +155,8 @@ describe('testing sentimeter api', function() {
           //console.log(res.text);
           should.exist(data.identity_id);
           should.exist(data.session_id);
-          should.exist(data.group_id);
-          should.not.equal(data.group_id, group_id);
+          should.exist(data.group);
+          should.not.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
           done();

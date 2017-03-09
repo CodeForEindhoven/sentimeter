@@ -34,48 +34,50 @@ var moment = require('moment-timezone');
             identity_id: session.identity_id
           }
         }).then(function(membership) {
+          var whereclause = {1: 1};
           if (membership) {
-            output.group_id = membership.parent_id;
-            res.end(JSON.stringify(output, null, 2));
-          } else {
-            //select or create a group
-            models.member.findAll({
-              attributes: [
-                'parent_id', [models.sequelize.fn('count', models.sequelize.col('identity_id')), 'cnt']
-              ],
-              having: models.sequelize.where(
-                models.sequelize.fn('count'),
-                "<=",
-                3
-              ),
-
-              order: [
-                [models.sequelize.fn('count', models.sequelize.col('identity_id')), 'DESC']
-              ],
-              group: [
-                "parent_id"
-              ]
-            }).then(function(result) {
-              if (!result || result.length === 0) {
-                //create a new group
-                models.member.create({
-                  identity_id: session.identity_id
-                }).then(function(result2) {
-                  output.group_id = result2.parent_id;
-                  res.end(JSON.stringify(output, null, 2));
-                });
-              } else {
-                var groupIdx = Math.floor(Math.random() * (result.length));
-                models.member.create({
-                  identity_id: session.identity_id,
-                  parent_id: result[groupIdx].parent_id
-                }).then(function(result2) {
-                  output.group_id = result2.parent_id;
-                  res.end(JSON.stringify(output, null, 2));
-                });
-              }
-            });
+            whereclause = {"parent_id": membership.parent_id};
           }
+          //select or create a group
+          models.member.findAll({
+            attributes: [
+              'parent_id', [models.sequelize.fn('count', models.sequelize.col('identity_id')), 'cnt']
+            ],
+            having: models.sequelize.where(
+              models.sequelize.fn('count'),
+              "<=",
+              4
+            ),
+
+            order: [
+              [models.sequelize.fn('count', models.sequelize.col('identity_id')), 'DESC']
+            ],
+            group: [
+              "parent_id"
+            ]
+          }).then(function(result) {
+            if (!result || result.length === 0) {
+              //create a new group
+              models.member.create({
+                identity_id: session.identity_id
+              }).then(function(result2) {
+                output.group = {"id": result2.parent_id, "members": 1};
+                res.end(JSON.stringify(output, null, 2));
+              });
+            } else {
+              var groupIdx = Math.floor(Math.random() * (result.length));
+              models.member.create({
+                identity_id: session.identity_id,
+                parent_id: result[groupIdx].parent_id
+              }).then(function(result2) {
+                output.group = {
+                  "id":result2.parent_id,
+                  "members": result[groupIdx].dataValues.cnt
+                };
+                res.end(JSON.stringify(output, null, 2));
+              });
+            }
+          });
         });
       });
     });

@@ -425,15 +425,26 @@ definitions:
       session_id:
         type: "string"
         description: "Session of the feedback"
+  Group:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique identifier representing the group"
+      members:
+        type: "number"
+        description: "Number of members in the group"
   Identity:
     type: "object"
     properties:
-      Identity_id:
+      identity_id:
         type: "string"
         description: "Unique identifier representing the identity"
-      Session_id:
+      session_id:
         type: "string"
         description: "Unique identifier representing the session"
+      group:
+        $ref: "#/definitions/Group"
   Merges:
     type: "object"
     properties:
