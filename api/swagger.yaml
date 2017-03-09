@@ -237,6 +237,63 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Apiv1"
+  /event/{event_id}:
+    post:
+      tags:
+      - "apiv1"
+      summary: "Accept an event"
+      description: "Accept event"
+      operationId: "event_id_POST"
+      parameters:
+      - name: "event_id"
+        in: "path"
+        description: "the id of the event to change status on"
+        required: true
+        type: "string"
+        format: "uid"
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Session"
+      responses:
+        200:
+          description: "New status"
+          schema:
+            $ref: "#/definitions/EventStatus"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
+    delete:
+      tags:
+      - "apiv1"
+      summary: "Decline an event"
+      description: "Decline event"
+      operationId: "event_id_DELETE"
+      parameters:
+      - name: "event_id"
+        in: "path"
+        description: "the id of the event to change status on"
+        required: true
+        type: "string"
+        format: "uid"
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Session"
+      responses:
+        200:
+          description: "New status"
+          schema:
+            $ref: "#/definitions/EventStatus"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Apiv1"
   /event:
     post:
       tags:
@@ -409,7 +466,15 @@ definitions:
         items:
           $ref: "#/definitions/Identity"
           uniqueItems: true
-
+  EventStatus:
+    type: "object"
+    properties:
+      event_id:
+        type: "string"
+        description: "Unique id of the event"
+      status:
+        type: "string"
+        description: "Your status for the event"
   Feedback:
     type: "object"
     properties:
@@ -445,6 +510,12 @@ definitions:
         description: "Unique identifier representing the session"
       group:
         $ref: "#/definitions/Group"
+  Session:
+    type: "object"
+    properties:
+      session_id:
+        type: "string"
+        description: "Unique identifier representing the session"
   Merges:
     type: "object"
     properties:

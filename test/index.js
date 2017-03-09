@@ -10,8 +10,9 @@ chai.use(chaiHttp);
 var should = chai.should();
 
 describe('testing sentimeter api', function() {
-  var identity_id;
-  var session_id;
+  var identities = [];
+  var sessions = [];
+  var event_id;
   var indicator_id;
   var group_id;
   afterEach(function() {
@@ -45,7 +46,7 @@ describe('testing sentimeter api', function() {
           should.exist(data.identity_id);
           should.exist(data.session_id);
           should.exist(data.group);
-          identity_id = data.identity_id;
+          identities.push(data.identity_id);
           group_id = data.group.id;
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
@@ -61,11 +62,11 @@ describe('testing sentimeter api', function() {
     it('it should return identity, group and NEW session', function(done) {
       chai.request(app)
         .post('/api/handshake')
-        .send({"identity_id": identity_id})
+        .send({"identity_id": identities[0]})
         .end(function(err, res) {
           var data = JSON.parse(res.text);
           should.exist(data.identity_id);
-          session_id = data.session_id;
+          sessions.push(data.session_id);
           should.exist(data.session_id);
           should.exist(data.group);
           should.equal(data.group.id, group_id);
@@ -87,9 +88,10 @@ describe('testing sentimeter api', function() {
         .end(function(err, res) {
           var data = JSON.parse(res.text);
           should.exist(data.identity_id);
-          session_id = data.session_id;
           should.exist(data.session_id);
           should.exist(data.group);
+          identities.push(data.identity_id);
+          sessions.push(data.session_id);
           should.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
@@ -112,6 +114,8 @@ describe('testing sentimeter api', function() {
           should.exist(data.identity_id);
           should.exist(data.session_id);
           should.exist(data.group);
+          identities.push(data.identity_id);
+          sessions.push(data.session_id);
           should.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
@@ -134,6 +138,8 @@ describe('testing sentimeter api', function() {
           should.exist(data.identity_id);
           should.exist(data.session_id);
           should.exist(data.group);
+          identities.push(data.identity_id);
+          sessions.push(data.session_id);
           should.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
@@ -156,6 +162,8 @@ describe('testing sentimeter api', function() {
           should.exist(data.identity_id);
           should.exist(data.session_id);
           should.exist(data.group);
+          identities.push(data.identity_id);
+          sessions.push(data.session_id);
           should.not.equal(data.group.id, group_id);
           res.should.be.json; // jshint ignore:line
           res.should.have.status(200);
@@ -223,15 +231,17 @@ describe('testing sentimeter api', function() {
     */
     describe('/POST score', function() {
       it('it should return a single score', function(done) {
+        var data = {
+          "session_id": sessions[0],
+          "indicator_id": indicator_id,
+          "score": 5
+        };
         chai.request(app)
           .post('/api/score')
-          .send({
-            "session_id": session_id,
-            "indicator_id": indicator_id,
-            "score": 5
-          })
+          .send(data)
           .end(function(err, res) {
             var data = JSON.parse(res.text);
+            //console.log(res.text);
             should.equal(data[0].count, 1);
             res.should.be.json; // jshint ignore:line
             res.should.have.status(200);
@@ -247,7 +257,7 @@ describe('testing sentimeter api', function() {
          chai.request(app)
            .post('/api/feedback')
            .send({
-             "session_id": session_id
+             "session_id": sessions[0]
            })
            .end(function(err, res) {
              var data = JSON.parse(res.text);
@@ -265,7 +275,7 @@ describe('testing sentimeter api', function() {
          chai.request(app)
            .post('/api/feedback')
            .send({
-             "session_id": session_id,
+             "session_id": sessions[0],
              "title": "This is a test feedback title"
            })
            .end(function(err, res) {
@@ -285,7 +295,7 @@ describe('testing sentimeter api', function() {
           chai.request(app)
             .post('/api/feedback')
             .send({
-              "session_id": session_id,
+              "session_id": sessions[0],
               "title": "This is another test feedback title",
               "description": "This is another test feedback description"
             })
@@ -338,7 +348,7 @@ describe('testing sentimeter api', function() {
      describe('/POST event', function() {
        it('it should return ok', function(done) {
          var data = {
-           "session_id": session_id,
+           "session_id": sessions[0],
            "event": {
              "group_id": group_id,
              "summary": "This is an event",
@@ -352,10 +362,67 @@ describe('testing sentimeter api', function() {
            .send(data)
            .end(function(err, res) {
              var data = JSON.parse(res.text);
+             event_id = data.id;
              res.should.be.json; // jshint ignore:line
              res.should.have.status(200);
              done();
            });
        });
      });
+     /*
+      * Test the creation of an event
+      */
+      describe('/POST event with id sets status to ATTENDING', function() {
+        it('Status should be ATTENDING', function(done) {
+          var data = {
+            "session_id": sessions[1],
+          };
+          chai.request(app)
+            .post('/api/event/' + event_id)
+            .send(data)
+            .end(function(err, res) {
+              var data = JSON.parse(res.text);
+              res.should.be.json; // jshint ignore:line
+              res.should.have.status(200);
+              done();
+            });
+        });
+      });
+     /*
+      * Test the creation of an event
+      */
+      describe('/DELETE event', function() {
+        it('Status should be DECLINED', function(done) {
+          var data = {
+            "session_id": sessions[2],
+          };
+          chai.request(app)
+            .delete('/api/event/' + event_id)
+            .send(data)
+            .end(function(err, res) {
+              var data = JSON.parse(res.text);
+              res.should.be.json; // jshint ignore:line
+              res.should.have.status(200);
+              done();
+            });
+        });
+      });
+      /*
+       * Test the creation of an event
+       */
+       describe('/DELETE event, no attendee', function() {
+         it('Should fail (400)', function(done) {
+           var data = {
+             "session_id": sessions[4],
+           };
+           chai.request(app)
+             .delete('/api/event/' + event_id)
+             .send(data)
+             .end(function(err, res) {
+               res.should.be.json; // jshint ignore:line
+               res.should.have.status(400);
+               done();
+             });
+         });
+       });
 });

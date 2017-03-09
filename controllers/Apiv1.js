@@ -567,7 +567,7 @@ var moment = require('moment-timezone');
                   if(identities[i] === identity.identity_id){
                     attendees.push({ "event_id": event.id, "identity_id":identity.identity_id, "status": "CREATOR"});
                   } else {
-                    attendees.push({ "event_id": event.id, "identity_id":identity.identity_id, "status": "SENT"});
+                    attendees.push({ "event_id": event.id, "identity_id":identities[i], "status": "SENT"});
                   }
                 }
                 models.attendee.bulkCreate(attendees).then(function(){
@@ -608,5 +608,79 @@ var moment = require('moment-timezone');
         "fields": fields
       });
     }
+  };
+  /**
+   * Attend event
+   *
+   * @api {post} /api/event
+   * @param body
+   **/
+  module.exports.event_id_POST = function(req, res, next) {
+    res.setHeader('content-type', 'application/json');
+    var response = {};
+    models.session.find({
+      where: {
+        session_id: req.swagger.params.body.value.session_id
+      }
+    }).then(function(identity) {
+      if (identity) {
+        var whereclause = {
+          event_id: req.swagger.params.event_id.value,
+          identity_id: identity.identity_id
+        };
+        //update record where identity and event_id are a match
+        models.attendee.update(
+          {status: 'ATTENDING'},
+          {where: whereclause})
+        .then(function (result) {
+          if (result[0] === 0){
+            return util.catchError(req, res, {
+              "code": 400,
+              "name": "notAttending",
+              "message": "You are not allowed to attend this event"
+            });
+          } else {
+            res.end(JSON.stringify(util.removeNulls({"status": "DECLINED"}), null, 2));
+          }
+        });
+      }
+    });
+  };
+  /**
+   * Decline event
+   *
+   * @api {delete} /api/event
+   * @param body
+   **/
+  module.exports.event_id_DELETE = function(req, res, next) {
+    res.setHeader('content-type', 'application/json');
+    var response = {};
+    models.session.find({
+      where: {
+        session_id: req.swagger.params.body.value.session_id
+      }
+    }).then(function(identity) {
+      if (identity) {
+        var whereclause = {
+          event_id: req.swagger.params.event_id.value,
+          identity_id: identity.identity_id
+        };
+        //update record where identity and event_id are a match
+        models.attendee.update(
+          {status: 'DECLINED'},
+          {where: whereclause})
+        .then(function (result) {
+          if (result[0] === 0){
+            return util.catchError(req, res, {
+              "code": 400,
+              "name": "notAttending",
+              "message": "You cannot decline this event"
+            });
+          } else {
+            res.end(JSON.stringify(util.removeNulls({"status": "DECLINED"}), null, 2));
+          }
+        });
+      }
+    });
   };
 }());
