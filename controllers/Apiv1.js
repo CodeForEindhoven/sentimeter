@@ -1,5 +1,6 @@
 var models = require('../models');
 var util = require('../helpers/utils.js');
+var moment = require('moment-timezone');
 
 (function() {
   'use strict';
@@ -28,54 +29,54 @@ var util = require('../helpers/utils.js');
           "session_id": session.session_id
         };
         // Group member?
-        models.member.findOne(
-          {
-            where: {
-              identity_id: session.identity_id
-            }
-          }).then(function(membership) {
-              if (membership) {
-                output.group_id = membership.parent_id;
-                res.end(JSON.stringify(output, null, 2));
-              } else {
-                //select or create a group
-                models.member.findAll({
-                  attributes: [
-                    'parent_id',
-                    [models.sequelize.fn('count', models.sequelize.col('identity_id')), 'cnt']
-                  ],
-                  having: models.sequelize.where(
-                    models.sequelize.fn('count'),
-                    "<=",
-                    3
-                  ),
+        models.member.findOne({
+          where: {
+            identity_id: session.identity_id
+          }
+        }).then(function(membership) {
+          if (membership) {
+            output.group_id = membership.parent_id;
+            res.end(JSON.stringify(output, null, 2));
+          } else {
+            //select or create a group
+            models.member.findAll({
+              attributes: [
+                'parent_id', [models.sequelize.fn('count', models.sequelize.col('identity_id')), 'cnt']
+              ],
+              having: models.sequelize.where(
+                models.sequelize.fn('count'),
+                "<=",
+                3
+              ),
 
-                  order: [[models.sequelize.fn('count', models.sequelize.col('identity_id')), 'DESC']],
-                  group: [
-                    "parent_id"
-                  ]
-                }).then(function(result){
-                  if (!result || result.length === 0){
-                    //create a new group
-                    models.member.create({
-                      identity_id: session.identity_id
-                    }).then(function(result2){
-                      output.group_id = result2.parent_id;
-                      res.end(JSON.stringify(output, null, 2));
-                    });
-                  } else {
-                    var groupIdx = Math.floor(Math.random() * (result.length));
-                    models.member.create({
-                      identity_id: session.identity_id,
-                      parent_id: result[groupIdx].parent_id
-                    }).then(function(result2){
-                      output.group_id = result2.parent_id;
-                      res.end(JSON.stringify(output, null, 2));
-                    });
-                  }
+              order: [
+                [models.sequelize.fn('count', models.sequelize.col('identity_id')), 'DESC']
+              ],
+              group: [
+                "parent_id"
+              ]
+            }).then(function(result) {
+              if (!result || result.length === 0) {
+                //create a new group
+                models.member.create({
+                  identity_id: session.identity_id
+                }).then(function(result2) {
+                  output.group_id = result2.parent_id;
+                  res.end(JSON.stringify(output, null, 2));
+                });
+              } else {
+                var groupIdx = Math.floor(Math.random() * (result.length));
+                models.member.create({
+                  identity_id: session.identity_id,
+                  parent_id: result[groupIdx].parent_id
+                }).then(function(result2) {
+                  output.group_id = result2.parent_id;
+                  res.end(JSON.stringify(output, null, 2));
                 });
               }
-          });
+            });
+          }
+        });
       });
     });
   };
@@ -509,7 +510,7 @@ var util = require('../helpers/utils.js');
   module.exports.feedback_GET = function(req, res, next) {
     res.setHeader('content-type', 'application/json');
     models.feedback.findAll({
-      attributes: [ 'title', 'description' ]
+      attributes: ['title', 'description']
     }).then(function(feedback) {
       if (Object.keys(feedback).length > 0) {
         res.end(JSON.stringify(util.removeNulls(feedback) || [], null, 2));
@@ -527,22 +528,72 @@ var util = require('../helpers/utils.js');
   module.exports.event_POST = function(req, res, next) {
     res.setHeader('content-type', 'application/json');
     var response = {};
-    if (req.swagger.params.body.value.group_id) {
+    if (req.swagger.params.body.value.session_id &&
+      req.swagger.params.body.value.event &&
+      req.swagger.params.body.value.event.group_id) {
       //Find other members in the group
-      models.members.find({
+      models.member.findAll({
         where: {
-          group_id: req.swagger.params.body.value.group_id
+          parent_id: req.swagger.params.body.value.event.group_id
         }
       }).then(function(group) {
-        //check if this user is in the group and if the group counts more then 1 identity
-        res.end(JSON.stringify(util.removeNulls(mFeedback), null, 2));
+        var identities = [];
+        for (var i in group) {
+          identities.push(group[i].identity_id);
+        }
+        models.session.find({
+          where: {
+            session_id: req.swagger.params.body.value.session_id
+          }
+        }).then(function(identity) {
+          if (identity) {
+            if (identities.indexOf(identity.identity_id) > -1) {
+              //In the array, create the event
+              models.event.create(req.swagger.params.body.value.event).then(function(event){
+                var attendees = [];
+                for (var i in identities) {
+                  if(identities[i] === identity.identity_id){
+                    attendees.push({ "event_id": event.id, "identity_id":identity.identity_id, "status": "CREATOR"});
+                  } else {
+                    attendees.push({ "event_id": event.id, "identity_id":identity.identity_id, "status": "SENT"});
+                  }
+                }
+                models.attendee.bulkCreate(attendees).then(function(){
+                  res.end(JSON.stringify(util.removeNulls(event), null, 2));
+                });
+              });
+            } else {
+              return util.catchError(req, res, {
+                "code": 400,
+                "name": "authErrors",
+                "message": "You are not allowed to post an event in this group"
+              });
+            }
+          } else {
+            return util.catchError(req, res, {
+              "code": 400,
+              "name": "authErrors",
+              "message": "Your identity could not be validated"
+            });
+          }
+        });
+
       });
     } else {
+      var fields = [];
+      if (!req.swagger.params.body.value.session_id) {
+        fields.push('session_id');
+      }
+      if (!req.swagger.params.body.value.event) {
+        fields.push('Event object');
+      } else if (!req.swagger.params.body.value.event.group_id) {
+        fields.push('group_id');
+      }
       return util.catchError(req, res, {
         "code": 400,
         "name": "fieldErrors",
-        "message": "No group provided",
-        "fields": ["group_id"]
+        "message": "Missing fields or objects",
+        "fields": fields
       });
     }
   };

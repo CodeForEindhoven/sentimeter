@@ -249,7 +249,12 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/Event"
+            type: "object"
+            properties:
+              session_id:
+                type: "string"
+              event:
+                $ref: "#/definitions/Event"
       responses:
         200:
           description: "A unique id for the event"

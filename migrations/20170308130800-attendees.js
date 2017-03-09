@@ -19,7 +19,7 @@
         },
         status: {
           type: Sequelize.ENUM,
-          values: ['SENT', 'ACCEPTED', 'DECLINED'],
+          values: ['SENT', 'ACCEPTED', 'DECLINED', 'CREATOR'],
           defaultValue: 'SENT'
         },
         createdAt: Sequelize.DATE,

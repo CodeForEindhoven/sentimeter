@@ -2,6 +2,7 @@
 process.env.NODE_ENV = 'test';
 
 //Require the dev-dependencies
+var moment = require('moment-timezone');
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var app = require('../server');
@@ -334,4 +335,30 @@ describe('testing sentimeter api', function() {
           });
       });
     });
+    /*
+     * Test the creation of an event
+     */
+     describe('/POST event', function() {
+       it('it should return ok', function(done) {
+         var data = {
+           "session_id": session_id,
+           "event": {
+             "group_id": group_id,
+             "summary": "This is an event",
+             "location": "Mainstreet 1027, New York",
+             "start": moment().add(1, 'days').add(6,'h').tz(moment.tz.guess()),
+             "end": moment().add(1, 'days').add(7,'h').tz(moment.tz.guess())
+           }
+         };
+         chai.request(app)
+           .post('/api/event')
+           .send(data)
+           .end(function(err, res) {
+             var data = JSON.parse(res.text);
+             res.should.be.json; // jshint ignore:line
+             res.should.have.status(200);
+             done();
+           });
+       });
+     });
 });
